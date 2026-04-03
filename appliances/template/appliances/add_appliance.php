@@ -308,12 +308,41 @@
 
 
             // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, show a confirmation message.
-            if ($is_eircode_valid && $is_appliance_type_valid && $is_brand_valid && 
+            if ($is_first_name_valid && $is_last_name_valid && $is_address_valid && 
+                $is_mobile_valid && $is_email_valid && $is_eircode_valid && 
+                $is_appliance_type_valid && $is_brand_valid && 
                 $is_model_number_valid && $is_serial_number_valid && 
-                $is_purchase_date_valid && $is_warranty_expiration_valid) 
+                $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
             {
-                header("Location: confirmation.php");
-                exit(); // Terminate the script after redirecting to prevent further code execution
+                // Check if the serial number already exists in the database to prevent duplicate entries.
+                $serial_number_check_sql = "SELECT * FROM appliances WHERE serial_number = '$serial_number'";
+                $serial_number_check_result = mysqli_query($con, $serial_number_check_sql);
+
+                $duplicate_error = false;
+                if (mysqli_num_rows($serial_number_check_result) > 0) {
+                    $duplicate_error = true;
+                    header("Location: error.php");
+                }
+
+                // If all inputs are valid, insert the appliance and user details into the database and redirect to the confirmation page.
+                // The table names are retrieved from the config.php file to ensure that any changes to the table names will be automatically reflected in the SQL queries without needing to manually update the code. Also for security reasons, the input values are sanitized using prepared statements to prevent SQL injection attacks.
+                $appliance_sql = "INSERT INTO $table2 (appliance_type, brand, model_number, serial_number, purchase_date, warranty_expiration, cost) 
+                        VALUES ('$appliance_type', '$brand', '$model_number', '$serial_number', '$purchase_date', '$warranty_expiration', '$cost')";
+                $user_sql = "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) 
+                        VALUES ('$first_name', '$last_name', '$address', '$mobile', '$email', '$eircode')";
+
+                // Start a transaction to ensure that both the appliance and user details are inserted successfully. If either of the queries fail, roll back the transaction and redirect to the error page.
+                mysqli_begin_transaction($con);
+                try {
+                    mysqli_query($con, $appliance_sql);
+                    mysqli_query($con, $user_sql);
+                    mysqli_commit($con);
+                    header("Location: confirmation.php");
+                } catch (Exception $e) {
+                    mysqli_rollback($con);
+                    header("Location: error.php");
+                    exit();
+                }
             }
         }
     ?>

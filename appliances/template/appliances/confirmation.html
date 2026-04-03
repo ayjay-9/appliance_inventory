@@ -7,21 +7,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
+    <title>Registration Successful</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" integrity="sha384- EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="../../static/House_Appliance_Inventory/style.css" type="text/css">
 </head>
 <body>
-    <div id="error_back_to_home">
-        <a href="../../../../index.html" class="btn btn-secondary mt-3 ms-3">Back to Home</a>
+    <div id="confirmation_back_to_home">
+        <a href="../../../index.html" class="btn btn-secondary mt-3 ms-3">Back to Home</a>
     </div>
-    <div class="alert alert-danger text-center" role="alert">
-        <h1>Error</h1>
-        <p>
-            An error occurred while processing your request. Please try re-submitting the
-            <a href="register_appliance.php">Inventory Application</a>
-        </p>
+    <!-- Display the confirmation message -->
+    <div class="alert alert-success text-center" role="alert">
+        <h1>Appliance Successfully Registered</h1>
+        <img src="../../static/appliances/success.png" alt="Success" class="img-fluid mt-3" style="max-width: 150px;">
+    </div>
+    <div class="text-center">
+        <a href="register_appliance.php" class="btn btn-primary mt-3">Register Another Appliance</a>
     </div>
 </body>
 </html>
