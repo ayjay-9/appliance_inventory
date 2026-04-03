@@ -45,4 +45,4 @@ allowing users to register and manage their home appliances.
 
 ## License
 This project is for educational purposes only.
-All rights reserved © Emmanuel Ayobanjo 2025
+All rights reserved © Emmanuel Ayobanjo 2026
