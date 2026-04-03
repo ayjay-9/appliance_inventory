@@ -4,5 +4,29 @@
     Student ID: 3173959
 */
 body {
-    
+    font-family: Arial, sans-serif;
+    scroll-behavior: smooth;
+
+    #appliance_form {
+        label {
+            font-weight: bold;
+
+            span {
+                color: red; /* Style for the asterisk indicating required fields */
+            }
+        }
+    }
+
+    .error_message {
+        color: red;
+        display: block;
+    }
+
+    #confirmation_back_to_home {
+        background-color: #D1E7DD;
+    }
+
+    #error_back_to_home {
+        background-color: #F8D7DA;
+    }
 }
