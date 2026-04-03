@@ -1,4 +1,4 @@
-<!-- Assignment 1 Part C - House Appliance Inventory (Sticky) -->
+<!-- Assignment 2 -->
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
