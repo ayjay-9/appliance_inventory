@@ -13,7 +13,6 @@ allowing users to register and manage their home appliances.
 ## Tech Stack
 - PHP
 - MySQL
-- JS
 - Bootstrap 5
 - SCSS
 - HTML5/CSS3
