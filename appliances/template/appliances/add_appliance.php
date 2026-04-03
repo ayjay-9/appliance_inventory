@@ -327,23 +327,33 @@
                     exit();
                 }
 
-                // If all inputs are valid, insert the appliance and user details into the database and redirect to the confirmation page.
-                // The table names are retrieved from the config.php file to ensure that any changes to the table names will be automatically reflected in the SQL queries without needing to manually update the code. Also for security reasons, the input values are sanitized using prepared statements to prevent SQL injection attacks.
-                $user_sql = "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) 
-                        VALUES ('" . mysqli_real_escape_string($con, $first_name) . "', '" . mysqli_real_escape_string($con, $last_name) . "', '" . mysqli_real_escape_string($con, $address) . "', '" . mysqli_real_escape_string($con, $mobile) . "', '" . mysqli_real_escape_string($con, $email) . "', '" . mysqli_real_escape_string($con, $eircode) . "')";
+                // Check if user already exists by email
+                $check_user_sql = "SELECT user_id FROM $table1 WHERE email = '" . mysqli_real_escape_string($con, $email) . "'";
+                $check_user_result = mysqli_query($con, $check_user_sql);
 
-                // Start a transaction to ensure that both the appliance and user details are inserted successfully. If either of the queries fail, roll back the transaction and redirect to the error page.
                 mysqli_begin_transaction($con);
 
-                // Insert the user before the appliance because of the foreign key constraint on the appliance table that references the user table. This ensures that the user record is created before the appliance record that references it, preventing any foreign key constraint violations.
-                $user_result = mysqli_query($con, $user_sql);
-
-                if ($user_result) {
-                    // Get the auto-incremented user_id generated from the user insertion to use as a foreign key in the appliance table. This allows us to associate the appliance with the correct user in the database.
+                if (mysqli_num_rows($check_user_result) > 0) {
+                    // User already exists, get their user_id
+                    $user_row = mysqli_fetch_assoc($check_user_result);
+                    $user_id = $user_row['user_id'];
+                    $user_result = true; // No insert needed
+                } else {
+                    // New user, insert them
+                    $user_sql = "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) 
+                        VALUES ('" . mysqli_real_escape_string($con, $first_name) . "', 
+                                '" . mysqli_real_escape_string($con, $last_name) . "', 
+                                '" . mysqli_real_escape_string($con, $address) . "', 
+                                '" . mysqli_real_escape_string($con, $mobile) . "', 
+                                '" . mysqli_real_escape_string($con, $email) . "', 
+                                '" . mysqli_real_escape_string($con, $eircode) . "')";
+                    $user_result = mysqli_query($con, $user_sql);
                     $user_id = mysqli_insert_id($con);
-                    
-                    $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
-                        VALUES ('$user_id', 
+                }
+
+                // Insert appliance with the user_id
+                $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
+                    VALUES ('$user_id', 
                             '" . mysqli_real_escape_string($con, $appliance_type) . "', 
                             '" . mysqli_real_escape_string($con, $brand) . "', 
                             '" . mysqli_real_escape_string($con, $model_number) . "', 
@@ -351,9 +361,8 @@
                             '" . mysqli_real_escape_string($con, $purchase_date) . "', 
                             '" . mysqli_real_escape_string($con, $warranty_expiration) . "', 
                             '" . mysqli_real_escape_string($con, $cost) . "'
-                        )";
-                    $appliance_result = mysqli_query($con, $appliance_sql);
-                }
+                    )";
+                $appliance_result = mysqli_query($con, $appliance_sql);
 
                 if ($user_result && $appliance_result) {
                     mysqli_commit($con);
