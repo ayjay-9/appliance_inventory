@@ -416,3 +416,28 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# PHP
+config.php
+*.env
+
+# Database
+*.sql
+*.sqlite
+
+# XAMPP/PHP Sessions
+/tmp/
+sess_*
+
+# Compiled CSS (SASS/SCSS)
+*.css.map
+style.css
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Composer
+vendor/
+composer.lock
