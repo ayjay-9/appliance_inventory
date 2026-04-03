@@ -220,9 +220,27 @@
     <div id="appliance_form" class="container mt-4 p-3">
         <!-- Form does not include client-side validation -->
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" novalidate>
-            <!-- Eircode input field with autofocus on page load -->
+            <!-- User Details with auto focus on first name on page load -->
+            <label for="first_name" class="form-label">First Name<span>*</span></label>
+            <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php if(isset($first_name)) {echo htmlspecialchars($first_name, ENT_QUOTES, 'UTF-8');} ?>" required autofocus>
+
+            <label for="last_name" class="form-label">Last Name<span>*</span></label>
+            <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php if(isset($last_name)) {echo htmlspecialchars($last_name, ENT_QUOTES, 'UTF-8');} ?>" required>
+
+            <label for="address" class="form-label">Address<span>*</span></label>
+            <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php if(isset($address)) {echo htmlspecialchars($address, ENT_QUOTES, 'UTF-8');} ?>" required>
+
+            <label for="mobile" class="form-label">Mobile Number<span>*</span></label>
+            <input type="text" id="mobile" name="mobile" class="form-control mb-3" placeholder="Mobile Number e.g., +353 871234567 or 0871234567" value="<?php if(isset($mobile)) {echo htmlspecialchars($mobile, ENT_QUOTES, 'UTF-8');} ?>" pattern="^(\+353|0)\d{9}$" required>
+            <span class="error_message"><?php echo htmlspecialchars($mobile_error, ENT_QUOTES, 'UTF-8'); ?></span>
+
+            <label for="email" class="form-label">Email<span>*</span></label>
+            <input type="email" id="email" name="email" class="form-control mb-3" placeholder="Email e.g., john.doe@example.com" value="<?php if(isset($email)) {echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8');} ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($email_error, ENT_QUOTES, 'UTF-8'); ?></span>
+
+            <!-- Eircode input field -->
             <label for="eircode" class="form-label">Eircode<span>*</span></label>
-            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode e.g., T12 BC34 or P51 B3C4" pattern="^(T12|T23|T34|P12|P17|P24|P25|P31|P32|P36|P43|P47|P51|P56|P61|P67|P72|P75|P81|P85) ?([a-zA-Z0-9]{2}\d{2}|[a-zA-Z]\d[a-zA-Z]\d)$" required autofocus>
+            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode e.g., T12 BC34 or P51 B3C4" pattern="^(T12|T23|T34|P12|P17|P24|P25|P31|P32|P36|P43|P47|P51|P56|P61|P67|P72|P75|P81|P85) ?([a-zA-Z0-9]{2}\d{2}|[a-zA-Z]\d[a-zA-Z]\d)$" value="<?php if(isset($eircode)) {echo htmlspecialchars($eircode, ENT_QUOTES, 'UTF-8');} ?>" required>
             <span class="error_message"><?php echo htmlspecialchars($eircode_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <!-- Appliance type selection dropdown -->
@@ -266,6 +284,10 @@
             <label for="warranty_expiration" class="form-label">Warranty Expiration Date<span>*</span></label>
             <input type="date" id="warranty_expiration" name="warranty_expiration" class="form-control mb-3" value="<?php if(isset($warranty_expiration)) {echo htmlspecialchars($warranty_expiration, ENT_QUOTES, 'UTF-8');} ?>" required>
             <span class="error_message"><?php echo htmlspecialchars($warranty_expiration_error, ENT_QUOTES, 'UTF-8'); ?></span>
+
+            <label for="cost" class="form-label">Cost<span>*</span></label>
+            <input type="number" id="cost" name="cost" class="form-control mb-3" title="Cost must be a positive number" placeholder="Cost e.g., 499.99" value="<?php if(isset($cost)) {echo htmlspecialchars($cost, ENT_QUOTES, 'UTF-8');} ?>" min="0" step="0.01">
+            <span class="error_message"><?php echo htmlspecialchars($cost_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <!-- Submit button to register the appliance -->
             <button type="submit" class="btn btn-primary mt-3">Add Appliance</button>
