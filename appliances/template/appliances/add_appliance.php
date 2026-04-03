@@ -2,6 +2,18 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
+<?php
+    // Start the session to store error messages that may occur during form processing. This allows the error messages to persist across page redirects, enabling the display of specific error messages on the error page based on the type of error that occurred (e.g., duplicate entry).
+    session_start();
+    // Connect to the database using the configuration settings defined in the config.php file. This allows for a centralized location to manage database connection details, making it easier to maintain and update the connection settings if needed.
+    require_once '../../../config.php';
+    $con = mysqli_connect($host, $username, $password, $dbname);
+    // Check connection to the database. If the connection fails, terminate the script and display an error message indicating the reason for the failure. This ensures that any issues with the database connection are promptly identified and handled gracefully.
+    if (!$con) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,15 +26,6 @@
 </head>
 <body>
     <?php
-        // Connect to the database
-        require_once '../../../config.php';
-        $con = mysqli_connect($host, $username, $password, $dbname);
-
-        // Check connection
-        if (!$con) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
-
         // Initialise error message variables to store any validation errors that may occur during form processing
         $first_name_error = "";
         $last_name_error = "";
@@ -315,33 +318,51 @@
                 $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
             {
                 // Check if the serial number already exists in the database to prevent duplicate entries.
-                $serial_number_check_sql = "SELECT * FROM appliances WHERE serial_number = '$serial_number'";
+                $serial_number_check_sql = "SELECT * FROM appliance WHERE serial_number = '$serial_number'";
                 $serial_number_check_result = mysqli_query($con, $serial_number_check_sql);
 
-                $duplicate_error = false;
                 if (mysqli_num_rows($serial_number_check_result) > 0) {
-                    $duplicate_error = true;
+                    $_SESSION['duplicate_error'] = true;
                     header("Location: error.php");
+                    exit();
                 }
 
                 // If all inputs are valid, insert the appliance and user details into the database and redirect to the confirmation page.
                 // The table names are retrieved from the config.php file to ensure that any changes to the table names will be automatically reflected in the SQL queries without needing to manually update the code. Also for security reasons, the input values are sanitized using prepared statements to prevent SQL injection attacks.
-                $appliance_sql = "INSERT INTO $table2 (appliance_type, brand, model_number, serial_number, purchase_date, warranty_expiration, cost) 
-                        VALUES ('$appliance_type', '$brand', '$model_number', '$serial_number', '$purchase_date', '$warranty_expiration', '$cost')";
                 $user_sql = "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) 
-                        VALUES ('$first_name', '$last_name', '$address', '$mobile', '$email', '$eircode')";
+                        VALUES ('" . mysqli_real_escape_string($con, $first_name) . "', '" . mysqli_real_escape_string($con, $last_name) . "', '" . mysqli_real_escape_string($con, $address) . "', '" . mysqli_real_escape_string($con, $mobile) . "', '" . mysqli_real_escape_string($con, $email) . "', '" . mysqli_real_escape_string($con, $eircode) . "')";
 
                 // Start a transaction to ensure that both the appliance and user details are inserted successfully. If either of the queries fail, roll back the transaction and redirect to the error page.
                 mysqli_begin_transaction($con);
-                try {
-                    mysqli_query($con, $appliance_sql);
-                    mysqli_query($con, $user_sql);
+
+                // Insert the user before the appliance because of the foreign key constraint on the appliance table that references the user table. This ensures that the user record is created before the appliance record that references it, preventing any foreign key constraint violations.
+                $user_result = mysqli_query($con, $user_sql);
+
+                if ($user_result) {
+                    // Get the auto-incremented user_id generated from the user insertion to use as a foreign key in the appliance table. This allows us to associate the appliance with the correct user in the database.
+                    $user_id = mysqli_insert_id($con);
+                    
+                    $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
+                        VALUES ('$user_id', 
+                            '" . mysqli_real_escape_string($con, $appliance_type) . "', 
+                            '" . mysqli_real_escape_string($con, $brand) . "', 
+                            '" . mysqli_real_escape_string($con, $model_number) . "', 
+                            '" . mysqli_real_escape_string($con, $serial_number) . "', 
+                            '" . mysqli_real_escape_string($con, $purchase_date) . "', 
+                            '" . mysqli_real_escape_string($con, $warranty_expiration) . "', 
+                            '" . mysqli_real_escape_string($con, $cost) . "'
+                        )";
+                    $appliance_result = mysqli_query($con, $appliance_sql);
+                }
+
+                if ($user_result && $appliance_result) {
                     mysqli_commit($con);
-                    header("Location: confirmation.php");
-                } catch (Exception $e) {
-                    mysqli_rollback($con);
-                    header("Location: error.php");
+                    header("Location: confirmation.html");
                     exit();
+                } else {
+                    mysqli_rollback($con);
+                    // Show the actual error to help debug
+                    die("SQL Error: " . mysqli_error($con));
                 }
             }
         }

@@ -2,6 +2,11 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
+<?php session_start();
+    $duplicate_error = $_SESSION['duplicate_error'] ?? false;
+    unset($_SESSION['duplicate_error']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,9 +18,6 @@
     <link rel="stylesheet" href="../../static/House_Appliance_Inventory/style.css" type="text/css">
 </head>
 <body>
-    <?php
-        require_once 'add_appliance.php';
-    ?>
     <?php if ($duplicate_error) { ?>
         <div class="alert alert-danger text-center" role="alert">
             <h1>Error</h1>
