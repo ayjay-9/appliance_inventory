@@ -14,6 +14,15 @@
 </head>
 <body>
     <?php
+        // Connect to the database
+        require_once '../../../config.php';
+        $con = mysqli_connect($host, $username, $password, $dbname);
+
+        // Check connection
+        if (!$con) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+
         // Initialise error message variables to store any validation errors that may occur during form processing
         $first_name_error = "";
         $last_name_error = "";
