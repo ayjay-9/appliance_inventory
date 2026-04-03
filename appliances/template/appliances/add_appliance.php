@@ -15,6 +15,11 @@
 <body>
     <?php
         // Initialise error message variables to store any validation errors that may occur during form processing
+        $first_name_error = "";
+        $last_name_error = "";
+        $address_error = "";
+        $mobile_error = "";
+        $email_error = "";        
         $eircode_error = "";
         $appliance_type_error = "";
         $brand_error = "";
@@ -22,10 +27,16 @@
         $serial_number_error = "";
         $purchase_date_error = "";
         $warranty_expiration_error = "";
+        $cost_error = "";
 
         $confirmation_message = "";
 
         // Initialise a boolean variable for each input to track whether the input is valid or not. This will be used to determine if the form can be successfully submitted.
+        $is_first_name_valid = false;
+        $is_last_name_valid = false;
+        $is_address_valid = false;
+        $is_mobile_valid = false;
+        $is_email_valid = false;
         $is_eircode_valid = false;
         $is_appliance_type_valid = false;
         $is_brand_valid = false;
@@ -33,6 +44,7 @@
         $is_serial_number_valid = false;
         $is_purchase_date_valid = false;
         $is_warranty_expiration_valid = false;
+        $is_cost_valid = false;
 
         // Initialise an array for existing appliance types.
         $appliance_types = [
@@ -60,6 +72,11 @@
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Retrieve appliance details from the POST request and sanitize the input to prevent XSS attacks
+            $first_name = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
+            $last_name = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
+            $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
+            $mobile = htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8');
+            $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
             $eircode = htmlspecialchars($_POST['eircode'], ENT_QUOTES, 'UTF-8');
             $appliance_type = htmlspecialchars($_POST['appliance_type'], ENT_QUOTES, 'UTF-8');
             $brand = htmlspecialchars($_POST['brand'], ENT_QUOTES, 'UTF-8');
@@ -71,26 +88,97 @@
             // will be an empty string instead of throwing an undefined index notice.
             // The default value of '0000-00-00' is used to indicate an invalid date, which will be caught during validation.
             $warranty_expiration = htmlspecialchars($_POST['warranty_expiration'] ?? '0000-00-00', ENT_QUOTES, 'UTF-8');
+            $cost = htmlspecialchars($_POST['cost'], ENT_QUOTES, 'UTF-8');
 
             // Set the patterns for validating the Eircode, Brand, Model Number, 
             // Serial Number formats, purchase date, and warranty expiration date using regular expressions.
+            $mobile_pattern = '/^(\+353|0)\d{9}$/'; // Validates Irish mobile numbers in the format +353 871234567 or 0871234567
             $eircode_pattern = '/^[a-zA-Z]\d{2} ?([a-zA-Z0-9]{2}\d{2}|[a-zA-Z]\d[a-zA-Z]\d)$/i'; // Valid Eircode Format (Case insensitive)
             $cork_eircode_pattern = '/^(T12|T23|T34|P12|P17|P24|P25|P31|P32|P36|P43|P47|P51|P56|P61|P67|P72|P75|P81|P85) ?([a-zA-Z0-9]{2}\d{2}|[a-zA-Z]\d[a-zA-Z]\d)$/i'; // Valid Cork Eircode Format (Case insensitive)
-            
-            $brand_pattern = '/^[a-zA-Z \'\-]{1,30}$/i'; // Validates that the brand name contains only letters, spaces, apostrophes, and hyphens, and is between 1 and 30 characters long (Case insensitive)
-            
-            $model_number_pattern = '/^[a-zA-Z]{2}\d{4}$/i'; // Validates that the model number consists of 2 letters followed by 4 digits (Case insensitive)
-            
-            $serial_number_pattern = '/^[Ss][Nn]\d{8}$/i'; // Validates that the serial number starts with "SN" followed by 8 digits (Case insensitive)
-            
-            $purchase_date_pattern = '/^\d{4}-\d{2}-\d{2}$/'; // Validates that the purchase date is in the format YYYY-MM-DD
-            
-            $warranty_expiration_pattern = '/^\d{4}-\d{2}-\d{2}$/'; // Validates that the warranty expiration date is in the format YYYY-MM-DD
+            $brand_pattern = '/^[a-zA-Z \'\-]{1,50}$/i'; // Validates that the brand name contains only letters, spaces, apostrophes, and hyphens, and is between 1 and 30 characters long (Case insensitive)            
+            $model_number_pattern = '/^[a-zA-Z]{2}\d{4}$/i'; // Validates that the model number consists of 2 letters followed by 4 digits (Case insensitive)            
+            $serial_number_pattern = '/^[Ss][Nn]\d{8}$/i'; // Validates that the serial number starts with "SN" followed by 8 digits (Case insensitive)           
+            $purchase_date_pattern = '/^\d{4}-\d{2}-\d{2}$/'; // Validates that the purchase date is in the format YYYY-MM-DD         
+            $warranty_expiration_pattern = '/^\d{4}-\d{2}-\d{2}$/'; // Validates that the warranty expiration date is in the format YYYY-MM-DD           
+            $cost_pattern = '/^\d+(\.\d{2})?$/'; // Validates cost as a positive decimal number with up to 2 decimal places
 
 
             /*
             * Validate each field to ensure they are not empty and match the expected formats
             */
+
+            // Check if the first name field is empty and if it matches the specified pattern. If validation fails, set the appropriate error message and redirect the user back to the registration form.
+            if (empty($first_name)) {
+                $first_name_error = "First name is required.";
+            }
+            else if (!preg_match("/^[a-zA-Z '-]+$/", $first_name)) {
+                $first_name_error = "First name can only contain letters, spaces, apostrophes, and hyphens.";
+            }
+            else if (strlen($first_name) < 2) {
+                $first_name_error = "First name should not be less than 2 characters";
+            }
+            else if (strlen($first_name) > 50) {
+                $first_name_error = "First name should not be more than 50 characters";
+            }
+            else {
+                $is_first_name_valid = true;
+            }
+
+            // Check if the last name field is empty and if it matches the specified pattern. If validation fails, set the appropriate error message and redirect the user back to the registration form.
+            if (empty($last_name)) {
+                $last_name_error = "Last name is required.";
+            }
+            else if (!preg_match("/^[a-zA-Z '-]+$/", $last_name)) {
+                $last_name_error = "Last name can only contain letters, spaces, apostrophes, and hyphens.";
+            }
+            else if (strlen($last_name) < 2) {
+                $last_name_error = "Last name should not be less than 2 characters";
+            }
+            else if (strlen($last_name) > 50) {
+                $last_name_error = "Last name should not be more than 50 characters";
+            }
+            else {
+                $is_last_name_valid = true;
+            }
+
+            // Check if the address field is empty. If it is, set the error message and redirect back to the form.
+            if (empty($address)) {
+                $address_error = "Address is required.";
+            }
+            else if (strlen($address) < 5) {
+                $address_error = "Address should not be less than 5 characters";
+            }
+            else if (strlen($address) > 100) {
+                $address_error = "Address should not be more than 100 characters";
+            }
+            else {
+                $is_address_valid = true;
+            }
+
+            // Check if the mobile number field is empty and if it matches the specified pattern. If validation fails, set the appropriate error message and redirect the user back to the registration form.
+            if (empty($mobile)) {
+                $mobile_error = "Mobile number is required.";
+            }
+            else if (!preg_match($mobile_pattern, $mobile)) {
+                $mobile_error = "Invalid mobile number format.";
+            }
+            else {
+                $is_mobile_valid = true;
+            }
+
+            // Check if the email field is empty and if it matches the specified pattern. If validation fails, set the appropriate error message and redirect the user back to the registration form.
+            if (empty($email)) {
+                $email_error = "Email is required.";
+            }
+            else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $email_error = "Invalid email format.";
+            }
+            else if (strlen($email) > 254) {
+                $email_error = "Email should not be more than 254 characters";
+            }
+            else {
+                $is_email_valid = true;
+            }
 
             // Check if the Eircode field is empty and if it matches the specified pattern. 
             // If validation fails, set the appropriate error message and redirect the user back 
@@ -138,8 +226,8 @@
             else if (strlen($brand) < 2) {
                 $brand_error = "Brand name should not be less than 2 characters";
             }
-            else if (strlen($brand) > 30) {
-                $brand_error = "Brand name should not be more than 30 characters";
+            else if (strlen($brand) > 50) {
+                $brand_error = "Brand name should not be more than 50 characters";
             }
             else {
                 $is_brand_valid = true;
@@ -198,6 +286,17 @@
                 $is_warranty_expiration_valid = true;
             }
 
+            // Check if the cost field is empty and if it matches the specified pattern. If validation fails, set the appropriate error message and redirect back to the registration form.
+            if (empty($cost)) {
+                $cost_error = "Cost is required.";
+            }
+            else if (!preg_match($cost_pattern, $cost)) {
+                $cost_error = "Invalid cost format. Cost must be a positive number with up to 2 decimal places.";
+            }
+            else {
+                $is_cost_valid = true;
+            }
+
 
             // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, show a confirmation message.
             if ($is_eircode_valid && $is_appliance_type_valid && $is_brand_valid && 
@@ -223,12 +322,15 @@
             <!-- User Details with auto focus on first name on page load -->
             <label for="first_name" class="form-label">First Name<span>*</span></label>
             <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php if(isset($first_name)) {echo htmlspecialchars($first_name, ENT_QUOTES, 'UTF-8');} ?>" required autofocus>
+            <span class="error_message"><?php echo htmlspecialchars($first_name_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="last_name" class="form-label">Last Name<span>*</span></label>
             <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php if(isset($last_name)) {echo htmlspecialchars($last_name, ENT_QUOTES, 'UTF-8');} ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($last_name_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="address" class="form-label">Address<span>*</span></label>
             <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php if(isset($address)) {echo htmlspecialchars($address, ENT_QUOTES, 'UTF-8');} ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($address_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="mobile" class="form-label">Mobile Number<span>*</span></label>
             <input type="text" id="mobile" name="mobile" class="form-control mb-3" placeholder="Mobile Number e.g., +353 871234567 or 0871234567" value="<?php if(isset($mobile)) {echo htmlspecialchars($mobile, ENT_QUOTES, 'UTF-8');} ?>" pattern="^(\+353|0)\d{9}$" required>
@@ -285,7 +387,7 @@
             <input type="date" id="warranty_expiration" name="warranty_expiration" class="form-control mb-3" value="<?php if(isset($warranty_expiration)) {echo htmlspecialchars($warranty_expiration, ENT_QUOTES, 'UTF-8');} ?>" required>
             <span class="error_message"><?php echo htmlspecialchars($warranty_expiration_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
-            <label for="cost" class="form-label">Cost<span>*</span></label>
+            <label for="cost" class="form-label">Cost (€)<span>*</span></label>
             <input type="number" id="cost" name="cost" class="form-control mb-3" title="Cost must be a positive number" placeholder="Cost e.g., 499.99" value="<?php if(isset($cost)) {echo htmlspecialchars($cost, ENT_QUOTES, 'UTF-8');} ?>" min="0" step="0.01">
             <span class="error_message"><?php echo htmlspecialchars($cost_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
