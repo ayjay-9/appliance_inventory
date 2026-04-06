@@ -59,7 +59,7 @@
             // Insert appliance with the user_id
             $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
                 VALUES ('$user_id', 
-                        '" . mysqli_real_escape_string($con, $_SESSION['appliance_type']) . "', 
+                        '" . mysqli_real_escape_string($con, $appliance_type) . "', 
                         '" . mysqli_real_escape_string($con, $brand) . "', 
                         '" . mysqli_real_escape_string($con, $model_number) . "', 
                         '" . mysqli_real_escape_string($con, $serial_number) . "', 
@@ -154,7 +154,7 @@
 
             <!-- Serial Number input field -->
             <label for="serial_number" class="form-label">Serial Number<span>*</span></label>
-            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" title="Format: SN followed by 8 digits" placeholder="Serial Number e.g., SN12345678" value="<?php if(isset($serial_number)) {echo htmlspecialchars($serial_number, ENT_QUOTES, 'UTF-8');} ?>" pattern="^[Ss][Nn]\d{8}$" required>
+            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" title="Format: SN followed by 8 digits" placeholder="Serial Number e.g., SN12345678" value="<?php if(isset($_GET['serial_number'])) {echo htmlspecialchars($_GET['serial_number'], ENT_QUOTES, 'UTF-8');} else if(isset($serial_number)) {echo htmlspecialchars($serial_number, ENT_QUOTES, 'UTF-8');} ?>" pattern="^[Ss][Nn]\d{8}$" required>
             <span class="error_message"><?php echo htmlspecialchars($serial_number_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <!-- Purchase date input field -->

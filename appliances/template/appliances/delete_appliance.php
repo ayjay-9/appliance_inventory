@@ -30,7 +30,7 @@
     <div class="container mt-5">   
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="GET" class="mb-4" novalidate>
             <div class="input-group">
-                <input type="text" name="query" class="form-control" placeholder="What appliance would you like to delete? e.g. SN12345678" value="<?php echo htmlspecialchars($_GET['query'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                <input type="text" name="query" class="form-control" placeholder="What appliance would you like to delete? e.g. SN12345678" value="<?php if (isset($_GET['serial_number'])) {echo htmlspecialchars($_GET['serial_number'], ENT_QUOTES, 'UTF-8');} else {echo htmlspecialchars($serial_num ?? '', ENT_QUOTES, 'UTF-8');} ?>" required>
                 <button type="submit" class="btn btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
@@ -44,9 +44,14 @@
         $query = htmlspecialchars($_GET['query'] ?? '', ENT_QUOTES, 'UTF-8');
         $query = mysqli_real_escape_string($con, $query);
 
-        if (isset($_GET['query']) && !empty($_GET['query'])) {
+        if (isset($_GET['serial_number'])) {
+            $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+        }
+        else if (isset($_GET['query'])) {
             $serial_num = mysqli_real_escape_string($con, $_GET['query']);
+        }
 
+        if (!empty($serial_num)) {
             // Show the appliance from the database
             $appliance_query = "SELECT * FROM $table2 
                                     JOIN $table1 ON $table2.user_id = $table1.user_id 
@@ -111,7 +116,7 @@
         else if (isset($_GET['query'])) {
             // If the appliance does not exist, show an error message.
             echo '<div class="alert alert-danger text-center" role="alert">';
-            echo 'No longer want to delete an appliance? Please enter a serial number to search for an appliance in the inventory.';
+            echo 'No longer wish to delete an appliance? You can <a href="search_appliance.php" class="alert-link">search the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>.';
             echo '</div>';
         }
     ?>
