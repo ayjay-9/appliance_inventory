@@ -7,6 +7,8 @@
         session_start();
     }
     $duplicate_error = $_SESSION['duplicate_error'] ?? false;
+    // Clear the duplicate error flag after displaying the error message
+    unset($_SESSION['duplicate_error']);
 ?>
 
 <!DOCTYPE html>
