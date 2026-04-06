@@ -2,6 +2,19 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
+<?php 
+    // Start the session to access session variables
+    session_start(); 
+
+    // Connect to the database like in the add_appliance.php file
+    require_once '../../config/database.php';
+    $con = mysqli_connect($host, $username, $password, $dbname);
+    // Check connection to the database. If the connection fails, terminate the script and display an error message indicating the reason for the failure. This ensures that any issues with the database connection are promptly identified and handled gracefully.
+    if (!$con) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
