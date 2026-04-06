@@ -7,9 +7,6 @@
         session_start();
     }
     $duplicate_error = $_SESSION['duplicate_error'] ?? false;
-    $update_error = $_SESSION['update_error'] ?? false;
-    unset($_SESSION['duplicate_error']);
-    unset($_SESSION['update_error']);
 ?>
 
 <!DOCTYPE html>
@@ -38,15 +35,6 @@
             <p>
                 Appliance already exists in the inventory. Please try re-submitting the
                 <a href="add_appliance.php">Inventory Application</a>
-            </p>
-        </div>
-    <?php } elseif ($update_error) { ?>
-        <div class="alert alert-danger text-center" role="alert">
-            <h1>Error</h1>
-            <img src="../../static/appliances/error.png" alt="Error" class="img-fluid mt-3 mb-3" style="max-width: 150px;">
-            <p>
-                An error occurred while updating the appliance. Please try re-submitting the
-                <a href="update_appliance.php">Update Appliance Form</a>
             </p>
         </div>
     <?php } else { ?>

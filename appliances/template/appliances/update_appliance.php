@@ -4,7 +4,7 @@
 
 <?php
     require_once 'validate.php';
-    
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, add it to the database and show a confirmation message.
         if ($is_first_name_valid && $is_last_name_valid && $is_address_valid && 
@@ -42,12 +42,6 @@
             $_SESSION['appliance_updated'] = true;
             header("Location: confirmation.php");
             exit();
-        } 
-        else {
-            // If any of the inputs is invalid, redirect to the error page.
-            $_SESSION['appliance_updated'] = false;
-            header("Location: error.php");
-            exit();
         }
     }
     
@@ -59,23 +53,32 @@
             $serial_num = mysqli_real_escape_string($con, $_GET['query']);
         }
 
-        if (!empty($serial_num)) {
-            $sql = "SELECT * FROM $table2 
-                    JOIN $table1 ON $table2.user_id = $table1.user_id 
-                    WHERE $table2.serial_number = '$serial_num'";
+        if (isset($_GET['serial_number']) || isset($_GET['query'])) {
+            if (!empty($serial_num)) {
+                 // Search for the appliance with the given serial number and get the user details using a JOIN query.
+                $sql = "SELECT * FROM $table2 
+                        JOIN $table1 ON $table2.user_id = $table1.user_id 
+                        WHERE $table2.serial_number = '$serial_num'";
 
-            $result = mysqli_query($con, $sql);
+                $result = mysqli_query($con, $sql);
 
-            if (mysqli_num_rows($result) > 0) {
-                $appliance = mysqli_fetch_assoc($result);
-            } 
-            // If no appliance is found with the given serial number.
+                if (mysqli_num_rows($result) > 0) {
+                    $appliance = mysqli_fetch_assoc($result);
+                }
+                // If no appliance is found with the given serial number.
+                else {
+                    echo '<div class="alert alert-warning text-center" role="alert">';
+                    echo 'No appliance found with serial number: ' . '<strong>' . htmlspecialchars($serial_num) . '</strong>. Would you like to <a href="add_appliance.php?serial_number=' . urlencode($serial_num) . '" class="alert-link">add it to the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>?';
+                    echo '</div>';
+                }
+            }
             else {
                 echo '<div class="alert alert-warning text-center" role="alert">';
-                echo 'No appliance found with serial number: ' . '<strong>' . htmlspecialchars($serial_num) . '</strong>. Would you like to <a href="add_appliance.php?serial_number=' . urlencode($serial_num) . '" class="alert-link">add it to the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>?';
+                echo 'Please enter a serial number to update an appliance. Would you like to <a href="add_appliance.php" class="alert-link">add a new appliance to the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>?';
                 echo '</div>';
             }
         }
+        
     }
 ?>
 
@@ -117,22 +120,28 @@
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" novalidate>
             <!-- Update Appliance User Details with auto focus on first name on page load -->
             <label for="first_name" class="form-label">First Name<span>*</span></label>
-            <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php if(isset($appliance['first_name'])) {echo htmlspecialchars($appliance['first_name'], ENT_QUOTES, 'UTF-8');} ?>" required autofocus>
+            <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php echo htmlspecialchars($first_name ?? $appliance['first_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required autofocus>
+            <span class="error_message"><?php echo htmlspecialchars($first_name_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="last_name" class="form-label">Last Name<span>*</span></label>
-            <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php if(isset($appliance['last_name'])) {echo htmlspecialchars($appliance['last_name'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php echo htmlspecialchars($last_name ?? $appliance['last_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($last_name_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="address" class="form-label">Address<span>*</span></label>
-            <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php if(isset($appliance['address'])) {echo htmlspecialchars($appliance['address'], ENT_QUOTES, 'UTF-8');} ?>" required>
-            
+            <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php echo htmlspecialchars($address ?? $appliance['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($address_error, ENT_QUOTES, 'UTF-8'); ?></span>
+
             <label for="mobile" class="form-label">Phone Number<span>*</span></label>
-            <input type="tel" id="mobile" name="mobile" class="form-control mb-3" placeholder="Phone Number" value="<?php if(isset($appliance['mobile'])) {echo htmlspecialchars($appliance['mobile'], ENT_QUOTES, 'UTF-8');} ?>" required>
-            
+            <input type="tel" id="mobile" name="mobile" class="form-control mb-3" placeholder="Phone Number" value="<?php echo htmlspecialchars($mobile ?? $appliance['mobile'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($mobile_error, ENT_QUOTES, 'UTF-8'); ?></span>
+
             <label for="email" class="form-label">Email<span>*</span></label>
-            <input type="email" id="email" name="email" class="form-control mb-3" placeholder="Email" value="<?php if(isset($appliance['email'])) {echo htmlspecialchars($appliance['email'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="email" id="email" name="email" class="form-control mb-3" placeholder="Email" value="<?php echo htmlspecialchars($email ?? $appliance['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($email_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="eircode" class="form-label">Eircode<span>*</span></label>
-            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode" value="<?php if(isset($appliance['eircode'])) {echo htmlspecialchars($appliance['eircode'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode" value="<?php echo htmlspecialchars($eircode ?? $appliance['eircode'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($eircode_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <!-- Update Appliance Details -->
             <label for="appliance_type" class="form-label">Appliance Type<span>*</span></label>
@@ -144,24 +153,31 @@
                      </option>
                 <?php } ?>
             </select>
+            <span class="error_message"><?php echo htmlspecialchars($appliance_type_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="brand" class="form-label">Brand<span>*</span></label>
-            <input type="text" id="brand" name="brand" class="form-control mb-3" placeholder="Brand" value="<?php if(isset($appliance['brand'])) {echo htmlspecialchars($appliance['brand'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="brand" name="brand" class="form-control mb-3" placeholder="Brand" value="<?php echo htmlspecialchars($brand ?? $appliance['brand'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($brand_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="model_number" class="form-label">Model Number<span>*</span></label>
-            <input type="text" id="model_number" name="model_number" class="form-control mb-3" placeholder="Model Number" value="<?php if(isset($appliance['model_number'])) {echo htmlspecialchars($appliance['model_number'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="model_number" name="model_number" class="form-control mb-3" placeholder="Model Number" value="<?php echo htmlspecialchars($model_number ?? $appliance['model_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($model_number_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
+            <!-- Serial number is read only as it is the unique identifier for each appliance and should not be changed. -->
             <label for="serial_number" class="form-label">Serial Number<span>*</span></label>
-            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" placeholder="Serial Number" value="<?php if(isset($appliance['serial_number'])) {echo htmlspecialchars($appliance['serial_number'], ENT_QUOTES, 'UTF-8');} ?>" readonly>
+            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" placeholder="Serial Number" value="<?php echo htmlspecialchars($serial_number ?? $appliance['serial_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
 
             <label for="purchase_date" class="form-label">Purchase Date<span>*</span></label>
-            <input type="date" id="purchase_date" name="purchase_date" class="form-control mb-3" value="<?php if(isset($appliance['purchase_date'])) {echo htmlspecialchars($appliance['purchase_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="date" id="purchase_date" name="purchase_date" class="form-control mb-3" value="<?php echo htmlspecialchars($purchase_date ?? $appliance['purchase_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($purchase_date_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="warranty_expiration" class="form-label">Warranty Expiration Date<span>*</span></label>
-            <input type="date" id="warranty_expiration" name="warranty_expiration" class="form-control mb-3" value="<?php if(isset($appliance['warranty_exp_date'])) {echo htmlspecialchars($appliance['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="date" id="warranty_expiration" name="warranty_expiration" class="form-control mb-3" value="<?php echo htmlspecialchars($warranty_expiration ?? $appliance['warranty_exp_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($warranty_expiration_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <label for="cost" class="form-label">Appliance Cost (€)<span>*</span></label>
-            <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($appliance['appliance_cost'])) {echo htmlspecialchars($appliance['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php echo htmlspecialchars($cost ?? $appliance['appliance_cost'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span class="error_message"><?php echo htmlspecialchars($cost_error, ENT_QUOTES, 'UTF-8'); ?></span>
 
             <button type="submit" class="btn btn-warning">Update Appliance</button>
         </form>
