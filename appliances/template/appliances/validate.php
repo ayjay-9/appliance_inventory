@@ -67,23 +67,23 @@
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Retrieve appliance details from the POST request and sanitize the input to prevent XSS attacks
-        $first_name = trim(htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8'));
-        $last_name = trim(htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8'));
-        $address = trim(htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8'));
-        $mobile = trim(htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8'));
-        $email = trim(htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8'));
-        $eircode = trim(htmlspecialchars($_POST['eircode'], ENT_QUOTES, 'UTF-8'));
-        $appliance_type = trim(htmlspecialchars($_POST['appliance_type'], ENT_QUOTES, 'UTF-8'));
-        $brand = trim(htmlspecialchars($_POST['brand'], ENT_QUOTES, 'UTF-8'));
-        $model_number = trim(htmlspecialchars($_POST['model_number'], ENT_QUOTES, 'UTF-8'));
-        $serial_number = trim(htmlspecialchars($_POST['serial_number'], ENT_QUOTES, 'UTF-8'));
-        $purchase_date = trim(htmlspecialchars($_POST['purchase_date'], ENT_QUOTES, 'UTF-8'));
+        $first_name = trim($_POST['first_name']);
+        $last_name = trim($_POST['last_name']);
+        $address = trim($_POST['address']);
+        $mobile = trim($_POST['mobile']);
+        $email = trim($_POST['email']);
+        $eircode = trim($_POST['eircode']);
+        $appliance_type = trim($_POST['appliance_type']);
+        $brand = trim($_POST['brand']);
+        $model_number = trim($_POST['model_number']);
+        $serial_number = trim($_POST['serial_number']);
+        $purchase_date = trim($_POST['purchase_date']);
         // In case the warranty_expiration is not set in the POST request, which can occur if the 
         // field is disabled and not submitted with the form. This ensures that $warranty_expiration 
         // will be an empty string instead of throwing an undefined index notice.
         // The default value of '0000-00-00' is used to indicate an invalid date, which will be caught during validation.
-        $warranty_expiration = trim(htmlspecialchars($_POST['warranty_expiration'] ?? '0000-00-00', ENT_QUOTES, 'UTF-8'));
-        $cost = trim(htmlspecialchars($_POST['cost'], ENT_QUOTES, 'UTF-8'));
+        $warranty_expiration = trim($_POST['warranty_expiration'] ?? '0000-00-00');
+        $cost = trim($_POST['cost']);
 
         // Set the patterns for validating the Eircode, Brand, Model Number, 
         // Serial Number formats, purchase date, and warranty expiration date using regular expressions.
