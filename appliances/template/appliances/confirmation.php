@@ -2,6 +2,12 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
+<?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +49,7 @@
                     <img src="../../static/appliances/success.png" alt="Success" class="img-fluid mt-3" style="max-width: 150px;">
                 </div>
                 <div class="text-center">
-                    <a href="search_appliance.php" class="btn btn-primary mt-3">View Appliance Inventory</a>
+                    <a href="../../../index.html" class="btn btn-primary mt-3">Back to home</a>
                 </div>';
         } 
         else if (isset($_SESSION['appliance_deleted']) && $_SESSION['appliance_deleted'] === true) {
@@ -54,7 +60,7 @@
                     <img src="../../static/appliances/success.png" alt="Success" class="img-fluid mt-3" style="max-width: 150px;">
                 </div>
                 <div class="text-center">
-                    <a href="search_appliance.php" class="btn btn-primary mt-3">View Appliance Inventory</a>
+                    <a href="../../../index.html" class="btn btn-primary mt-3">Back to home</a>
                 </div>';
         }
         else {

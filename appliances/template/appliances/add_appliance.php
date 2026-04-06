@@ -70,6 +70,9 @@
             $appliance_result = mysqli_query($con, $appliance_sql);
 
             if ($user_result && $appliance_result) {
+                unset($_SESSION['appliance_updated']);
+                unset($_SESSION['appliance_registered']);
+                unset($_SESSION['appliance_deleted']);
                 $_SESSION['appliance_registered'] = true;
                 mysqli_commit($con);
                 header("Location: confirmation.php");

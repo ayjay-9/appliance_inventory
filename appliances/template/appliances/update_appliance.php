@@ -35,6 +35,9 @@
             mysqli_stmt_execute($stmt);
 
             // If all inputs are valid, update the appliance details in the database and show a confirmation message
+            unset($_SESSION['appliance_updated']);
+            unset($_SESSION['appliance_registered']);
+            unset($_SESSION['appliance_deleted']);
             $_SESSION['appliance_updated'] = true;
             header("Location: confirmation.php");
             exit();

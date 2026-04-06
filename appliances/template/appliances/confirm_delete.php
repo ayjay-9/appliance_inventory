@@ -30,7 +30,19 @@
                         <p>This action cannot be undone. Please confirm that you want to permanently delete this appliance from the inventory.</p>
                         <hr>
                         <form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="POST" class="d-inline">
+                            <input type="hidden" name="first_name" value="' . htmlspecialchars($_POST['first_name']) . '">
+                            <input type="hidden" name="last_name" value="' . htmlspecialchars($_POST['last_name']) . '">
+                            <input type="hidden" name="address" value="' . htmlspecialchars($_POST['address']) . '">
+                            <input type="hidden" name="mobile" value="' . htmlspecialchars($_POST['mobile']) . '">
+                            <input type="hidden" name="email" value="' . htmlspecialchars($_POST['email']) . '">
+                            <input type="hidden" name="eircode" value="' . htmlspecialchars($_POST['eircode']) . '">
+                            <input type="hidden" name="appliance_type" value="' . htmlspecialchars($_POST['appliance_type']) . '">
+                            <input type="hidden" name="brand" value="' . htmlspecialchars($_POST['brand']) . '">
+                            <input type="hidden" name="model_number" value="' . htmlspecialchars($_POST['model_number']) . '">
                             <input type="hidden" name="serial_number" value="' . htmlspecialchars($_POST['serial_number']) . '">
+                            <input type="hidden" name="purchase_date" value="' . htmlspecialchars($_POST['purchase_date']) . '">
+                            <input type="hidden" name="warranty_exp_date" value="' . htmlspecialchars($_POST['warranty_exp_date']) . '">
+                            <input type="hidden" name="cost" value="' . htmlspecialchars($_POST['cost']) . '">
                             <input type="hidden" name="confirm_delete" value="yes">
                             <button type="submit" class="btn btn-danger">Yes, Delete</button>
                         </form>
@@ -41,11 +53,30 @@
         else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_delete'])) {
             $serial_num = mysqli_real_escape_string($con, $_POST['serial_number']);
 
+            // Get the user ID associated with the appliance to be deleted
+            $get_user_query = "SELECT user_id FROM $table2 WHERE serial_number = '$serial_num'";
+            $result = mysqli_query($con, $get_user_query);
+            $user_id = mysqli_fetch_assoc($result)['user_id'];
+
             // Delete the appliance from the database
             $delete_query = "DELETE FROM $table2 WHERE serial_number = '$serial_num'";
             mysqli_query($con, $delete_query);
 
+            // then check if user still has appliances
+            $appliance_count_query = "SELECT COUNT(*) FROM $table2 WHERE user_id = '$user_id'";
+            $appliance_count_result = mysqli_query($con, $appliance_count_query);
+            
+            // if the user has no more appliances, delete the user from the database as well
+            $appliance_count = mysqli_fetch_row($appliance_count_result)[0];
+            if ($appliance_count == 0) {
+                $delete_user_query = "DELETE FROM $table1 WHERE user_id = '$user_id'";
+                mysqli_query($con, $delete_user_query);
+            }
+
             // If the appliance was successfully deleted, show a confirmation message.
+            unset($_SESSION['appliance_updated']);
+            unset($_SESSION['appliance_registered']);
+            unset($_SESSION['appliance_deleted']);
             $_SESSION['appliance_deleted'] = true;
             header("Location: confirmation.php");
             exit();            
