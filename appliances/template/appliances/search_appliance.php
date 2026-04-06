@@ -82,6 +82,11 @@
                 echo '</div>';
             }
         }
+        else {
+            echo '<div class="alert alert-info text-center" role="alert">';
+            echo 'Please enter a serial number to search for an appliance in the inventory.';
+            echo '</div>';
+        }
     ?>
 </body>
 </html>
