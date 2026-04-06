@@ -41,23 +41,21 @@
     </div>
 
     <?php
-        $query = htmlspecialchars($_GET['query'] ?? '', ENT_QUOTES, 'UTF-8');
-        $query = mysqli_real_escape_string($con, $query);
+        $query = $_GET['query'] ?? '';
 
         if (isset($_GET['serial_number'])) {
-            $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+            $serial_num = $_GET['serial_number'];
         }
         else if (isset($_GET['query'])) {
-            $serial_num = mysqli_real_escape_string($con, $_GET['query']);
+            $serial_num = $_GET['query'];
         }
 
         if (!empty($serial_num)) {
             // Show the appliance from the database
-            $appliance_query = "SELECT * FROM $table2 
-                                    JOIN $table1 ON $table2.user_id = $table1.user_id 
-                                    WHERE serial_number = '$serial_num'
-                                ";
-            $appliance_result = mysqli_query($con, $appliance_query);
+            $stmt = mysqli_prepare($con, "SELECT * FROM $table2 JOIN $table1 ON $table2.user_id = $table1.user_id WHERE serial_number = ?");
+            mysqli_stmt_bind_param($stmt, "s", $serial_num);
+            mysqli_stmt_execute($stmt);
+            $appliance_result = mysqli_stmt_get_result($stmt);
 
             // If the appliance exists, store it in a variable.
             if (mysqli_num_rows($appliance_result) > 0) {

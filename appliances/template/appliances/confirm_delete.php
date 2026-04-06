@@ -51,26 +51,32 @@
                 </div>';
         }
         else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_delete'])) {
-            $serial_num = mysqli_real_escape_string($con, $_POST['serial_number']);
+            $serial_num = $_POST['serial_number'];
 
             // Get the user ID associated with the appliance to be deleted
-            $get_user_query = "SELECT user_id FROM $table2 WHERE serial_number = '$serial_num'";
-            $result = mysqli_query($con, $get_user_query);
+            $stmt = mysqli_prepare($con, "SELECT user_id FROM $table2 WHERE serial_number = ?");
+            mysqli_stmt_bind_param($stmt, "s", $serial_num);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             $user_id = mysqli_fetch_assoc($result)['user_id'];
 
             // Delete the appliance from the database
-            $delete_query = "DELETE FROM $table2 WHERE serial_number = '$serial_num'";
-            mysqli_query($con, $delete_query);
+            $stmt = mysqli_prepare($con, "DELETE FROM $table2 WHERE serial_number = ?");
+            mysqli_stmt_bind_param($stmt, "s", $serial_num);
+            mysqli_stmt_execute($stmt);
 
             // then check if user still has appliances
-            $appliance_count_query = "SELECT COUNT(*) FROM $table2 WHERE user_id = '$user_id'";
-            $appliance_count_result = mysqli_query($con, $appliance_count_query);
+            $stmt = mysqli_prepare($con, "SELECT COUNT(*) FROM $table2 WHERE user_id = ?");
+            mysqli_stmt_bind_param($stmt, "s", $user_id);
+            mysqli_stmt_execute($stmt);
+            $appliance_count_result = mysqli_stmt_get_result($stmt);
             
             // if the user has no more appliances, delete the user from the database as well
             $appliance_count = mysqli_fetch_row($appliance_count_result)[0];
             if ($appliance_count == 0) {
-                $delete_user_query = "DELETE FROM $table1 WHERE user_id = '$user_id'";
-                mysqli_query($con, $delete_user_query);
+                $stmt = mysqli_prepare($con, "DELETE FROM $table1 WHERE user_id = ?");
+                mysqli_stmt_bind_param($stmt, "s", $user_id);
+                mysqli_stmt_execute($stmt);
             }
 
             // If the appliance was successfully deleted, show a confirmation message.

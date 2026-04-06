@@ -27,10 +27,12 @@
             $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
         {
             // Check if the serial number already exists in the database to prevent duplicate entries.
-            $serial_number_check_sql = "SELECT * FROM $table2 WHERE serial_number = '$serial_number'";
-            $serial_number_check_result = mysqli_query($con, $serial_number_check_sql);
+            $stmt = mysqli_prepare($con, "SELECT * FROM $table2 WHERE serial_number = ?");
+            mysqli_stmt_bind_param($stmt, "s", $serial_number);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
 
-            if (mysqli_num_rows($serial_number_check_result) > 0) {
+            if (mysqli_num_rows($result) > 0) {
                 $_SESSION['duplicate_error'] = true;
                 header("Location: error.php");
                 exit();
@@ -45,29 +47,16 @@
                 $user_result = true; // No insert needed
             } else {
                 // New user, insert them
-                $user_sql = "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) 
-                    VALUES ('" . mysqli_real_escape_string($con, $first_name) . "', 
-                            '" . mysqli_real_escape_string($con, $last_name) . "', 
-                            '" . mysqli_real_escape_string($con, $address) . "', 
-                            '" . mysqli_real_escape_string($con, $mobile) . "', 
-                            '" . mysqli_real_escape_string($con, $email) . "', 
-                            '" . mysqli_real_escape_string($con, $eircode) . "')";
-                $user_result = mysqli_query($con, $user_sql);
+                $stmt = mysqli_prepare($con, "INSERT INTO $table1 (first_name, last_name, address, mobile, email, eircode) VALUES (?, ?, ?, ?, ?, ?)");
+                mysqli_stmt_bind_param($stmt, "ssssss", $first_name, $last_name, $address, $mobile, $email, $eircode);
+                $user_result = mysqli_stmt_execute($stmt);
                 $user_id = mysqli_insert_id($con);
             }
 
             // Insert appliance with the user_id
-            $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
-                VALUES ('$user_id', 
-                        '" . mysqli_real_escape_string($con, $appliance_type) . "', 
-                        '" . mysqli_real_escape_string($con, $brand) . "', 
-                        '" . mysqli_real_escape_string($con, $model_number) . "', 
-                        '" . mysqli_real_escape_string($con, $serial_number) . "', 
-                        '" . mysqli_real_escape_string($con, $purchase_date) . "', 
-                        '" . mysqli_real_escape_string($con, $warranty_expiration) . "', 
-                        '" . mysqli_real_escape_string($con, $cost) . "'
-                )";
-            $appliance_result = mysqli_query($con, $appliance_sql);
+            $stmt = mysqli_prepare($con, "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "isssssss", $user_id, $appliance_type, $brand, $model_number, $serial_number, $purchase_date, $warranty_expiration, $cost);
+            $appliance_result = mysqli_stmt_execute($stmt);
 
             if ($user_result && $appliance_result) {
                 unset($_SESSION['appliance_updated']);

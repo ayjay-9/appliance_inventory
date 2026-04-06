@@ -47,20 +47,19 @@
     
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (isset($_GET['serial_number'])) {
-            $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+            $serial_num = $_GET['serial_number'];
         }
         else if (isset($_GET['query'])) {
-            $serial_num = mysqli_real_escape_string($con, $_GET['query']);
+            $serial_num = $_GET['query'];
         }
 
         if (isset($_GET['serial_number']) || isset($_GET['query'])) {
             if (!empty($serial_num)) {
-                 // Search for the appliance with the given serial number and get the user details using a JOIN query.
-                $sql = "SELECT * FROM $table2 
-                        JOIN $table1 ON $table2.user_id = $table1.user_id 
-                        WHERE $table2.serial_number = '$serial_num'";
-
-                $result = mysqli_query($con, $sql);
+                // Search for the appliance with the given serial number and get the user details using a JOIN query.
+                $stmt = mysqli_prepare($con, "SELECT * FROM $table2 JOIN $table1 ON $table2.user_id = $table1.user_id WHERE $table2.serial_number = ?");
+                mysqli_stmt_bind_param($stmt, "s", $serial_num);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
 
                 if (mysqli_num_rows($result) > 0) {
                     $appliance = mysqli_fetch_assoc($result);

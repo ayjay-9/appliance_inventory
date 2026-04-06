@@ -301,8 +301,10 @@
             $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
         {
             // Check if user already exists by email
-            $check_user_sql = "SELECT user_id FROM $table1 WHERE email = '" . mysqli_real_escape_string($con, $email) . "'";
-            $check_user_result = mysqli_query($con, $check_user_sql);
+            $stmt = mysqli_prepare($con, "SELECT user_id FROM $table1 WHERE email = ?");
+            mysqli_stmt_bind_param($stmt, "s", $email);
+            mysqli_stmt_execute($stmt);
+            $check_user_result = mysqli_stmt_get_result($stmt);
         }
     }
 ?>
