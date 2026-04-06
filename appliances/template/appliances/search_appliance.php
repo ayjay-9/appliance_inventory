@@ -44,7 +44,7 @@
         $query = htmlspecialchars($_GET['query'] ?? '', ENT_QUOTES, 'UTF-8');
         $query = mysqli_real_escape_string($con, $query);
 
-        if ($query) {
+        if (isset($_GET['query']) && $query !== '') {
             $sql = "SELECT * FROM $table2 
                         JOIN $table1 ON $table2.user_id = $table1.user_id 
                         WHERE $table2.serial_number = '$query'
@@ -52,25 +52,25 @@
             $result = mysqli_query($con, $sql);
 
             if (mysqli_num_rows($result) > 0) {
-                $_SESSION['appliance'] = mysqli_fetch_assoc($result);
+                $appliance = mysqli_fetch_assoc($result);
                 echo '<div class="container mt-4">';
                 echo '<h2>Appliance Details</h2>';
                 echo '<table class="table table-bordered">';
-                echo '<tr><th>Serial Number</th><td>' . htmlspecialchars($_SESSION['appliance']['serial_number']) . '</td></tr>';
-                echo '<tr><th>Appliance Type</th><td>' . htmlspecialchars($_SESSION['appliance']['appliance_type']) . '</td></tr>';
-                echo '<tr><th>Brand</th><td>' . htmlspecialchars($_SESSION['appliance']['brand']) . '</td></tr>';
-                echo '<tr><th>Model</th><td>' . htmlspecialchars($_SESSION['appliance']['model_number']) . '</td></tr>';
-                echo '<tr><th>Purchase Date</th><td>' . htmlspecialchars($_SESSION['appliance']['purchase_date']) . '</td></tr>';
-                echo '<tr><th>Warranty Expiration Date</th><td>' . htmlspecialchars($_SESSION['appliance']['warranty_exp_date']) . '</td></tr>';
-                echo '<tr><th>Appliance Cost</th><td>€' . htmlspecialchars($_SESSION['appliance']['appliance_cost']) . '</td></tr>';
-                echo '<tr><th>Owner Name</th><td>' . htmlspecialchars($_SESSION['appliance']['first_name']) . ' ' . htmlspecialchars($_SESSION['appliance']['last_name']) . '</td></tr>';
+                echo '<tr><th>Serial Number</th><td>' . htmlspecialchars($appliance['serial_number']) . '</td></tr>';
+                echo '<tr><th>Appliance Type</th><td>' . htmlspecialchars($appliance['appliance_type']) . '</td></tr>';
+                echo '<tr><th>Brand</th><td>' . htmlspecialchars($appliance['brand']) . '</td></tr>';
+                echo '<tr><th>Model</th><td>' . htmlspecialchars($appliance['model_number']) . '</td></tr>';
+                echo '<tr><th>Purchase Date</th><td>' . htmlspecialchars($appliance['purchase_date']) . '</td></tr>';
+                echo '<tr><th>Warranty Expiration Date</th><td>' . htmlspecialchars($appliance['warranty_exp_date']) . '</td></tr>';
+                echo '<tr><th>Appliance Cost</th><td>€' . htmlspecialchars($appliance['appliance_cost']) . '</td></tr>';
+                echo '<tr><th>Owner Name</th><td>' . htmlspecialchars($appliance['first_name']) . ' ' . htmlspecialchars($appliance['last_name']) . '</td></tr>';
                 echo '</table>';
                 echo '<p> Showing ' . mysqli_num_rows($result) . ' result(s).</p>';
                 echo '</div>';
 
                 // Optionally update the appliance with a link to the update_appliance.php
                 echo '<div class="container mt-3">';
-                echo '<a href="update_appliance.php?query=' . urlencode($query) . '" class="btn btn-warning">Update Appliance?</a>';
+                echo '<a href="update_appliance.php?serial_number=' . urlencode($query) . '" class="btn btn-warning">Update Appliance?</a>';
                 echo '</div>';
             } else {
                 echo '<div class="alert alert-warning text-center" role="alert">';
@@ -78,7 +78,7 @@
                 echo '</div>';
             }
         }
-        else {
+        else if (isset($_GET['query'])) {
             echo '<div class="alert alert-info text-center" role="alert">';
             echo 'Please enter a serial number to search for an appliance in the inventory.';
             echo '</div>';

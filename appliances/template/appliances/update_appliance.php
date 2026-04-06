@@ -24,15 +24,41 @@
                                 WHERE $table2.serial_number = ?
                             ";
             $stmt = mysqli_prepare($con, $update_query);
-            mysqli_stmt_bind_param($stmt, "sssssssssssss", $_SESSION['appliance']['first_name'], $_SESSION['appliance']['last_name'], $_SESSION['appliance']['address'], $_SESSION['appliance']['mobile'], $_SESSION['appliance']['email'], $_SESSION['appliance']['eircode'], $_SESSION['appliance']['appliance_type'], $_SESSION['appliance']['brand'], $_SESSION['appliance']['model_number'], $_SESSION['appliance']['purchase_date'], $_SESSION['appliance']['warranty_exp_date'], $_SESSION['appliance']['appliance_cost'], $_SESSION['appliance']['serial_number']);
+            mysqli_stmt_bind_param($stmt, "sssssssssssss", 
+                $first_name, $last_name, $address, $mobile, 
+                $email, $eircode, 
+                $_POST['appliance_type'],   // from validate.php
+                $brand, $model_number, 
+                $purchase_date, $warranty_expiration, 
+                $cost,
+                $serial_number  // serial number stays the same
+            );
             mysqli_stmt_execute($stmt);
 
             // If all inputs are valid, update the appliance details in the database and show a confirmation message
             $_SESSION['appliance_updated'] = true;
             header("Location: confirmation.php");
+            exit();
         } 
         else {
             // If any of the inputs is invalid, redirect to the error page.
+            header("Location: error.php");
+            exit();
+        }
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['serial_number'])) {
+        $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+
+        $sql = "SELECT * FROM $table2 
+                JOIN $table1 ON $table2.user_id = $table1.user_id 
+                WHERE $table2.serial_number = '$serial_num'";
+
+        $result = mysqli_query($con, $sql);
+
+        if ($row = mysqli_fetch_assoc($result)) {
+            $appliance = $row;
+        } else {
             header("Location: error.php");
             exit();
         }
@@ -64,51 +90,51 @@
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" novalidate>
             <!-- Update Appliance User Details with auto focus on first name on page load -->
             <label for="first_name" class="form-label">First Name<span>*</span></label>
-            <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php if(isset($_SESSION['appliance']['first_name'])) {echo htmlspecialchars($_SESSION['appliance']['first_name'], ENT_QUOTES, 'UTF-8');} ?>" required autofocus>
+            <input type="text" id="first_name" name="first_name" class="form-control mb-3" placeholder="First Name" value="<?php if(isset($appliance['first_name'])) {echo htmlspecialchars($appliance['first_name'], ENT_QUOTES, 'UTF-8');} ?>" required autofocus>
 
             <label for="last_name" class="form-label">Last Name<span>*</span></label>
-            <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php if(isset($_SESSION['appliance']['last_name'])) {echo htmlspecialchars($_SESSION['appliance']['last_name'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="last_name" name="last_name" class="form-control mb-3" placeholder="Last Name" value="<?php if(isset($appliance['last_name'])) {echo htmlspecialchars($appliance['last_name'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="address" class="form-label">Address<span>*</span></label>
-            <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php if(isset($_SESSION['appliance']['address'])) {echo htmlspecialchars($_SESSION['appliance']['address'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="address" name="address" class="form-control mb-3" placeholder="Address" value="<?php if(isset($appliance['address'])) {echo htmlspecialchars($appliance['address'], ENT_QUOTES, 'UTF-8');} ?>" required>
             
             <label for="mobile" class="form-label">Phone Number<span>*</span></label>
-            <input type="tel" id="mobile" name="mobile" class="form-control mb-3" placeholder="Phone Number" value="<?php if(isset($_SESSION['appliance']['mobile'])) {echo htmlspecialchars($_SESSION['appliance']['mobile'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="tel" id="mobile" name="mobile" class="form-control mb-3" placeholder="Phone Number" value="<?php if(isset($appliance['mobile'])) {echo htmlspecialchars($appliance['mobile'], ENT_QUOTES, 'UTF-8');} ?>" required>
             
             <label for="email" class="form-label">Email<span>*</span></label>
-            <input type="email" id="email" name="email" class="form-control mb-3" placeholder="Email" value="<?php if(isset($_SESSION['appliance']['email'])) {echo htmlspecialchars($_SESSION['appliance']['email'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="email" id="email" name="email" class="form-control mb-3" placeholder="Email" value="<?php if(isset($appliance['email'])) {echo htmlspecialchars($appliance['email'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="eircode" class="form-label">Eircode<span>*</span></label>
-            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode" value="<?php if(isset($_SESSION['appliance']['eircode'])) {echo htmlspecialchars($_SESSION['appliance']['eircode'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="eircode" name="eircode" class="form-control mb-3" placeholder="Eircode" value="<?php if(isset($appliance['eircode'])) {echo htmlspecialchars($appliance['eircode'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <!-- Update Appliance Details -->
             <label for="appliance_type" class="form-label">Appliance Type<span>*</span></label>
             <select id="appliance_type" name="appliance_type" class="form-select mb-3" required>
                 <option value="">--Select Appliance Type--</option>
                 <?php foreach ($_SESSION['appliance_types'] as $type) { ?>
-                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($_SESSION['appliance']['appliance_type']) && $_SESSION['appliance']['appliance_type'] === $type) { echo 'selected'; } ?>>
+                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($appliance['appliance_type']) && $appliance['appliance_type'] === $type) { echo 'selected'; } ?>>
                          <?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>
                      </option>
                 <?php } ?>
             </select>
 
             <label for="brand" class="form-label">Brand<span>*</span></label>
-            <input type="text" id="brand" name="brand" class="form-control mb-3" placeholder="Brand" value="<?php if(isset($_SESSION['appliance']['brand'])) {echo htmlspecialchars($_SESSION['appliance']['brand'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="brand" name="brand" class="form-control mb-3" placeholder="Brand" value="<?php if(isset($appliance['brand'])) {echo htmlspecialchars($appliance['brand'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="model_number" class="form-label">Model Number<span>*</span></label>
-            <input type="text" id="model_number" name="model_number" class="form-control mb-3" placeholder="Model Number" value="<?php if(isset($_SESSION['appliance']['model_number'])) {echo htmlspecialchars($_SESSION['appliance']['model_number'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="text" id="model_number" name="model_number" class="form-control mb-3" placeholder="Model Number" value="<?php if(isset($appliance['model_number'])) {echo htmlspecialchars($appliance['model_number'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="serial_number" class="form-label">Serial Number<span>*</span></label>
-            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" placeholder="Serial Number" value="<?php if(isset($_SESSION['appliance']['serial_number'])) {echo htmlspecialchars($_SESSION['appliance']['serial_number'], ENT_QUOTES, 'UTF-8');} ?>" disabled>
+            <input type="text" id="serial_number" name="serial_number" class="form-control mb-3" placeholder="Serial Number" value="<?php if(isset($appliance['serial_number'])) {echo htmlspecialchars($appliance['serial_number'], ENT_QUOTES, 'UTF-8');} ?>" readonly>
 
             <label for="purchase_date" class="form-label">Purchase Date<span>*</span></label>
-            <input type="date" id="purchase_date" name="purchase_date" class="form-control mb-3" value="<?php if(isset($_SESSION['appliance']['purchase_date'])) {echo htmlspecialchars($_SESSION['appliance']['purchase_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="date" id="purchase_date" name="purchase_date" class="form-control mb-3" value="<?php if(isset($appliance['purchase_date'])) {echo htmlspecialchars($appliance['purchase_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="warranty_exp_date" class="form-label">Warranty Expiration Date<span>*</span></label>
-            <input type="date" id="warranty_exp_date" name="warranty_exp_date" class="form-control mb-3" value="<?php if(isset($_SESSION['appliance']['warranty_exp_date'])) {echo htmlspecialchars($_SESSION['appliance']['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="date" id="warranty_exp_date" name="warranty_exp_date" class="form-control mb-3" value="<?php if(isset($appliance['warranty_exp_date'])) {echo htmlspecialchars($appliance['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="cost" class="form-label">Appliance Cost (€)<span>*</span></label>
-            <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($_SESSION['appliance']['appliance_cost'])) {echo htmlspecialchars($_SESSION['appliance']['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($appliance['appliance_cost'])) {echo htmlspecialchars($appliance['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <button type="submit" class="btn btn-warning">Update Appliance</button>
         </form>

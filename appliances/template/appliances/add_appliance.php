@@ -131,7 +131,7 @@
                      the previously selected value will be retained in the dropdown when the form is redisplayed with error messages. 
                 -->
                 <?php foreach ($_SESSION['appliance_types'] as $type) { ?>
-                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($_SESSION['appliance_type']) && $_SESSION['appliance_type'] === $type) { echo 'selected'; } ?>>
+                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($_POST['appliance_type']) && $_POST['appliance_type'] === $type) { echo 'selected'; } ?>>
                         <?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>
                     </option>
                 <?php } ?>
