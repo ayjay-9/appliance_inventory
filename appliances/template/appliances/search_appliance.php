@@ -26,5 +26,14 @@
     <link rel="stylesheet" href="../../static/House_Appliance_Inventory/style.css" type="text/css">
 </head>
 <body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Search Appliance</h1>
+        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="query" class="form-control" placeholder="Enter appliance name or type..." required>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
