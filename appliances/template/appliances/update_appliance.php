@@ -4,6 +4,7 @@
 
 <?php
     require_once 'validate.php';
+    
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, add it to the database and show a confirmation message.
         if ($is_first_name_valid && $is_last_name_valid && $is_address_valid && 
@@ -12,7 +13,7 @@
             $is_model_number_valid && $is_serial_number_valid && 
             $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
         {
-            $update_query = "UPDATE $table2 join $table1 
+            $update_query = "UPDATE $table2 JOIN $table1 
                                 ON $table2.user_id = $table1.user_id 
                                 SET $table1.first_name = ?, $table1.last_name = ?, 
                                 $table1.address = ?, $table1.mobile = ?, 
@@ -26,7 +27,7 @@
             mysqli_stmt_bind_param($stmt, "sssssssssssss", 
                 $first_name, $last_name, $address, $mobile, 
                 $email, $eircode, 
-                $_POST['appliance_type'],   // from validate.php
+                $appliance_type,
                 $brand, $model_number, 
                 $purchase_date, $warranty_expiration, 
                 $cost,
@@ -44,25 +45,36 @@
         } 
         else {
             // If any of the inputs is invalid, redirect to the error page.
+            $_SESSION['appliance_updated'] = false;
             header("Location: error.php");
             exit();
         }
     }
     
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['serial_number'])) {
-        $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if (isset($_GET['serial_number'])) {
+            $serial_num = mysqli_real_escape_string($con, $_GET['serial_number']);
+        }
+        else if (isset($_GET['query'])) {
+            $serial_num = mysqli_real_escape_string($con, $_GET['query']);
+        }
 
-        $sql = "SELECT * FROM $table2 
-                JOIN $table1 ON $table2.user_id = $table1.user_id 
-                WHERE $table2.serial_number = '$serial_num'";
+        if (!empty($serial_num)) {
+            $sql = "SELECT * FROM $table2 
+                    JOIN $table1 ON $table2.user_id = $table1.user_id 
+                    WHERE $table2.serial_number = '$serial_num'";
 
-        $result = mysqli_query($con, $sql);
+            $result = mysqli_query($con, $sql);
 
-        if ($row = mysqli_fetch_assoc($result)) {
-            $appliance = $row;
-        } else {
-            header("Location: error.php");
-            exit();
+            if (mysqli_num_rows($result) > 0) {
+                $appliance = mysqli_fetch_assoc($result);
+            } 
+            // If no appliance is found with the given serial number.
+            else {
+                echo '<div class="alert alert-warning text-center" role="alert">';
+                echo 'No appliance found with serial number: ' . '<strong>' . htmlspecialchars($serial_num) . '</strong>. Would you like to <a href="add_appliance.php?serial_number=' . urlencode($serial_num) . '" class="alert-link">add it to the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>?';
+                echo '</div>';
+            }
         }
     }
 ?>
