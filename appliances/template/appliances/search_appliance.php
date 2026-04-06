@@ -3,6 +3,8 @@
 <!-- Student ID: 3173959 -->
 
 <?php
+    // Start a session to store the database connection and the appliance details across pages
+    session_start();
     // Connect to the database like in the add_appliance.php file
     require_once '../../../config.php';
     $con = mysqli_connect($host, $username, $password, $dbname);
@@ -58,18 +60,18 @@
             $result = mysqli_query($con, $sql);
 
             if (mysqli_num_rows($result) > 0) {
-                $appliance = mysqli_fetch_assoc($result);
+                $_SESSION['appliance'] = mysqli_fetch_assoc($result);
                 echo '<div class="container mt-4">';
                 echo '<h2>Appliance Details</h2>';
                 echo '<table class="table table-bordered">';
-                echo '<tr><th>Serial Number</th><td>' . htmlspecialchars($appliance['serial_number']) . '</td></tr>';
-                echo '<tr><th>Appliance Type</th><td>' . htmlspecialchars($appliance['appliance_type']) . '</td></tr>';
-                echo '<tr><th>Brand</th><td>' . htmlspecialchars($appliance['brand']) . '</td></tr>';
-                echo '<tr><th>Model</th><td>' . htmlspecialchars($appliance['model_number']) . '</td></tr>';
-                echo '<tr><th>Purchase Date</th><td>' . htmlspecialchars($appliance['purchase_date']) . '</td></tr>';
-                echo '<tr><th>Warranty Expiration Date</th><td>' . htmlspecialchars($appliance['warranty_exp_date']) . '</td></tr>';
-                echo '<tr><th>Appliance Cost</th><td>€' . htmlspecialchars($appliance['appliance_cost']) . '</td></tr>';
-                echo '<tr><th>Owner Name</th><td>' . htmlspecialchars($appliance['first_name']) . ' ' . htmlspecialchars($appliance['last_name']) . '</td></tr>';
+                echo '<tr><th>Serial Number</th><td>' . htmlspecialchars($_SESSION['appliance']['serial_number']) . '</td></tr>';
+                echo '<tr><th>Appliance Type</th><td>' . htmlspecialchars($_SESSION['appliance']['appliance_type']) . '</td></tr>';
+                echo '<tr><th>Brand</th><td>' . htmlspecialchars($_SESSION['appliance']['brand']) . '</td></tr>';
+                echo '<tr><th>Model</th><td>' . htmlspecialchars($_SESSION['appliance']['model_number']) . '</td></tr>';
+                echo '<tr><th>Purchase Date</th><td>' . htmlspecialchars($_SESSION['appliance']['purchase_date']) . '</td></tr>';
+                echo '<tr><th>Warranty Expiration Date</th><td>' . htmlspecialchars($_SESSION['appliance']['warranty_exp_date']) . '</td></tr>';
+                echo '<tr><th>Appliance Cost</th><td>€' . htmlspecialchars($_SESSION['appliance']['appliance_cost']) . '</td></tr>';
+                echo '<tr><th>Owner Name</th><td>' . htmlspecialchars($_SESSION['appliance']['first_name']) . ' ' . htmlspecialchars($_SESSION['appliance']['last_name']) . '</td></tr>';
                 echo '</table>';
                 echo '<p> Showing ' . mysqli_num_rows($result) . ' result(s).</p>';
                 echo '</div>';

@@ -59,7 +59,7 @@
         $is_cost_valid = false;
 
         // Initialise an array for existing appliance types.
-        $appliance_types = [
+        $_SESSION['appliance_types'] = [
             'Refrigerator',
             'Washing Machine',
             'Oven',
@@ -90,7 +90,7 @@
             $mobile = trim(htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8'));
             $email = trim(htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8'));
             $eircode = trim(htmlspecialchars($_POST['eircode'], ENT_QUOTES, 'UTF-8'));
-            $appliance_type = trim(htmlspecialchars($_POST['appliance_type'], ENT_QUOTES, 'UTF-8'));
+            $_SESSION['appliance_type'] = trim(htmlspecialchars($_POST['appliance_type'], ENT_QUOTES, 'UTF-8'));
             $brand = trim(htmlspecialchars($_POST['brand'], ENT_QUOTES, 'UTF-8'));
             $model_number = trim(htmlspecialchars($_POST['model_number'], ENT_QUOTES, 'UTF-8'));
             $serial_number = trim(htmlspecialchars($_POST['serial_number'], ENT_QUOTES, 'UTF-8'));
@@ -213,13 +213,13 @@
 
             // Check if the appliance type field is empty. If it is, set the error message and 
             // redirect back to the form.
-            if (empty($appliance_type)) {
+            if (empty($_SESSION['appliance_type'])) {
                 $appliance_type_error = "Appliance type is required.";
             }
             // Check if the selected appliance type is valid by comparing it against the 
             // predefined list of appliance types. If the selected type is not in the list, 
             // set the error message and redirect back to the form
-            else if (!in_array($appliance_type, $appliance_types)) {
+            else if (!in_array($_SESSION['appliance_type'], $_SESSION['appliance_types'])) {
                 $appliance_type_error = "Invalid appliance type selected.";
             }
             else {
@@ -354,7 +354,7 @@
                 // Insert appliance with the user_id
                 $appliance_sql = "INSERT INTO $table2 (user_id, appliance_type, brand, model_number, serial_number, purchase_date, warranty_exp_date, appliance_cost) 
                     VALUES ('$user_id', 
-                            '" . mysqli_real_escape_string($con, $appliance_type) . "', 
+                            '" . mysqli_real_escape_string($con, $_SESSION['appliance_type']) . "', 
                             '" . mysqli_real_escape_string($con, $brand) . "', 
                             '" . mysqli_real_escape_string($con, $model_number) . "', 
                             '" . mysqli_real_escape_string($con, $serial_number) . "', 
@@ -365,6 +365,7 @@
                 $appliance_result = mysqli_query($con, $appliance_sql);
 
                 if ($user_result && $appliance_result) {
+                    $_SESSION['appliance_registered'] = true;
                     mysqli_commit($con);
                     header("Location: confirmation.html");
                     exit();
@@ -425,8 +426,8 @@
                      types will be automatically reflected in the dropdown without needing to manually update the HTML. Additionally, if the form is submitted with an invalid appliance type, 
                      the previously selected value will be retained in the dropdown when the form is redisplayed with error messages. 
                 -->
-                <?php foreach ($appliance_types as $type) { ?>
-                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($appliance_type) && $appliance_type === $type) { echo 'selected'; } ?>>
+                <?php foreach ($_SESSION['appliance_types'] as $type) { ?>
+                    <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" <?php if (isset($_SESSION['appliance_type']) && $_SESSION['appliance_type'] === $type) { echo 'selected'; } ?>>
                         <?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>
                     </option>
                 <?php } ?>
