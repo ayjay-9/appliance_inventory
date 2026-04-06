@@ -2,10 +2,7 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
-<?php 
-    // Start the session to access session variables
-    session_start(); 
-
+<?php
     // Connect to the database like in the add_appliance.php file
     require_once '../../../config.php';
     $con = mysqli_connect($host, $username, $password, $dbname);
