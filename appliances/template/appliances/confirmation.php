@@ -35,6 +35,8 @@
         } else if (isset($_SESSION['appliance_updated']) && $_SESSION['appliance_updated'] === true) {
             // Unset the session variable to prevent the message from showing on page refresh
             unset($_SESSION['appliance_updated']);
+            unset($_SESSION['appliance']);        // clear the stored appliance
+            unset($_SESSION['appliance_type']);   // clear the appliance type
             echo '<div class="alert alert-success text-center" role="alert">
                     <h1>Appliance Successfully Updated</h1>
                     <img src="../../static/appliances/success.png" alt="Success" class="img-fluid mt-3" style="max-width: 150px;">
