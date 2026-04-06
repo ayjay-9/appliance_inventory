@@ -88,6 +88,19 @@
         <hr class="mb-1">
     </header>
 
+    <div class="container mt-5">   
+        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="GET" class="mb-4" novalidate>
+            <div class="input-group">
+                <input type="text" name="query" class="form-control" placeholder="What appliance would you like to update? e.g. SN12345678" value="<?php if (isset($_GET['serial_number'])) {echo htmlspecialchars($_GET['serial_number'], ENT_QUOTES, 'UTF-8');} else {echo htmlspecialchars($serial_num ?? '', ENT_QUOTES, 'UTF-8');} ?>" required>
+                <button type="submit" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
     <div id="appliance_form" class="container mt-4 p-3">
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" novalidate>
             <!-- Update Appliance User Details with auto focus on first name on page load -->
