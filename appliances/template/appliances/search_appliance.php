@@ -73,6 +73,11 @@
                 echo '</table>';
                 echo '<p> Showing ' . mysqli_num_rows($result) . ' result(s).</p>';
                 echo '</div>';
+
+                // Optionally update the appliance with a link to the update_appliance.php
+                echo '<div class="container mt-3">';
+                echo '<a href="update_appliance.php?query=' . urlencode($query) . '" class="btn btn-warning">Update Appliance?</a>';
+                echo '</div>';
             } else {
                 echo '<div class="alert alert-warning text-center" role="alert">';
                 echo 'No appliance found with serial number: ' . '<strong>' . htmlspecialchars($query) . '</strong>. Would you like to <a href="add_appliance.php" class="alert-link">add it to the inventory</a> or <a href="../../../index.html" class="alert-link">return to the homepage</a>?';
