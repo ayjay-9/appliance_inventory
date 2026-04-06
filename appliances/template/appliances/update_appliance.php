@@ -3,15 +3,39 @@
 <!-- Student ID: 3173959 -->
 
 <?php
-    session_start();
-    // Retrieve the appliance details from the session variable set in search_appliance.php
-    $appliance = $_SESSION['appliance'] ?? null;
-    // Connect to the database like in the add_appliance.php file
-    require_once '../../../config.php';
-    $con = mysqli_connect($host, $username, $password, $dbname);
-    // Check connection to the database. If the connection fails, terminate the script and display an error message indicating the reason for the failure. This ensures that any issues with the database connection are promptly identified and handled gracefully.
-    if (!$con) {
-        die("Connection failed: " . mysqli_connect_error());
+    require_once 'validate.php';
+    
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, add it to the database and show a confirmation message.
+        if ($is_first_name_valid && $is_last_name_valid && $is_address_valid && 
+            $is_mobile_valid && $is_email_valid && $is_eircode_valid && 
+            $is_appliance_type_valid && $is_brand_valid && 
+            $is_model_number_valid && $is_serial_number_valid && 
+            $is_purchase_date_valid && $is_warranty_expiration_valid && $is_cost_valid)
+        {
+            $update_query = "UPDATE $table2 join $table1 
+                                ON $table2.user_id = $table1.user_id 
+                                SET $table1.first_name = ?, $table1.last_name = ?, 
+                                $table1.address = ?, $table1.mobile = ?, 
+                                $table1.email = ?, $table1.eircode = ?, 
+                                $table2.appliance_type = ?, $table2.brand = ?, 
+                                $table2.model_number = ?, $table2.purchase_date = ?, 
+                                $table2.warranty_exp_date = ?, $table2.appliance_cost = ? 
+                                WHERE $table2.serial_number = ?
+                            ";
+            $stmt = mysqli_prepare($con, $update_query);
+            mysqli_stmt_bind_param($stmt, "sssssssssssss", $_SESSION['appliance']['first_name'], $_SESSION['appliance']['last_name'], $_SESSION['appliance']['address'], $_SESSION['appliance']['mobile'], $_SESSION['appliance']['email'], $_SESSION['appliance']['eircode'], $_SESSION['appliance']['appliance_type'], $_SESSION['appliance']['brand'], $_SESSION['appliance']['model_number'], $_SESSION['appliance']['purchase_date'], $_SESSION['appliance']['warranty_exp_date'], $_SESSION['appliance']['appliance_cost'], $_SESSION['appliance']['serial_number']);
+            mysqli_stmt_execute($stmt);
+
+            // If all inputs are valid, update the appliance details in the database and show a confirmation message
+            $_SESSION['appliance_updated'] = true;
+            header("Location: confirmation.php");
+        } 
+        else {
+            // If any of the inputs is invalid, redirect to the error page.
+            header("Location: error.php");
+            exit();
+        }
     }
 ?>
 
@@ -83,8 +107,8 @@
             <label for="warranty_exp_date" class="form-label">Warranty Expiration Date<span>*</span></label>
             <input type="date" id="warranty_exp_date" name="warranty_exp_date" class="form-control mb-3" value="<?php if(isset($_SESSION['appliance']['warranty_exp_date'])) {echo htmlspecialchars($_SESSION['appliance']['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
-            <label for="appliance_cost" class="form-label">Appliance Cost (€)<span>*</span></label>
-            <input type="number" id="appliance_cost" name="appliance_cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($_SESSION['appliance']['appliance_cost'])) {echo htmlspecialchars($_SESSION['appliance']['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <label for="cost" class="form-label">Appliance Cost (€)<span>*</span></label>
+            <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($_SESSION['appliance']['appliance_cost'])) {echo htmlspecialchars($_SESSION['appliance']['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <button type="submit" class="btn btn-warning">Update Appliance</button>
         </form>

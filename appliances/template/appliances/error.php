@@ -2,7 +2,10 @@
 <!-- Name: Emmanuel Ayobanjo -->
 <!-- Student ID: 3173959 -->
 
-<?php session_start();
+<?php 
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     $duplicate_error = $_SESSION['duplicate_error'] ?? false;
     unset($_SESSION['duplicate_error']);
 ?>
@@ -25,6 +28,7 @@
             </svg>
         </a>
     </div>
+    <!-- If adding a duplicate appliance -->
     <?php if ($duplicate_error) { ?>
         <div class="alert alert-danger text-center" role="alert">
             <h1>Error</h1>

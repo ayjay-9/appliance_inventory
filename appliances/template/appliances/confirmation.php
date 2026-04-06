@@ -32,7 +32,7 @@
                 <div class="text-center">
                     <a href="add_appliance.php" class="btn btn-primary mt-3">Register Another Appliance</a>
                 </div>';
-        } elsseif (isset($_SESSION['appliance_updated']) && $_SESSION['appliance_updated'] === true) {
+        } else if (isset($_SESSION['appliance_updated']) && $_SESSION['appliance_updated'] === true) {
             // Unset the session variable to prevent the message from showing on page refresh
             unset($_SESSION['appliance_updated']);
             echo '<div class="alert alert-success text-center" role="alert">

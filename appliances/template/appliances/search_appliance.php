@@ -3,15 +3,7 @@
 <!-- Student ID: 3173959 -->
 
 <?php
-    // Start a session to store the database connection and the appliance details across pages
-    session_start();
-    // Connect to the database like in the add_appliance.php file
-    require_once '../../../config.php';
-    $con = mysqli_connect($host, $username, $password, $dbname);
-    // Check connection to the database. If the connection fails, terminate the script and display an error message indicating the reason for the failure. This ensures that any issues with the database connection are promptly identified and handled gracefully.
-    if (!$con) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
+    require_once 'validate.php';
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +29,7 @@
     <div class="container mt-5">   
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="GET" class="mb-4" novalidate>
             <div class="input-group">
-                <input type="text" name="query" class="form-control" placeholder="Enter appliance serial number, e.g. SN12345678" required>
+                <input type="text" name="query" class="form-control" placeholder="Enter appliance serial number, e.g. SN12345678" value="<?php echo htmlspecialchars($_GET['query'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
                 <button type="submit" class="btn btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
