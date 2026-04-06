@@ -4,7 +4,6 @@
 
 <?php
     require_once 'validate.php';
-    
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // If any of the inputs is invalid, redirect to the form and show the error messages. Otherwise, add it to the database and show a confirmation message.
         if ($is_first_name_valid && $is_last_name_valid && $is_address_valid && 
@@ -130,8 +129,8 @@
             <label for="purchase_date" class="form-label">Purchase Date<span>*</span></label>
             <input type="date" id="purchase_date" name="purchase_date" class="form-control mb-3" value="<?php if(isset($appliance['purchase_date'])) {echo htmlspecialchars($appliance['purchase_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
-            <label for="warranty_exp_date" class="form-label">Warranty Expiration Date<span>*</span></label>
-            <input type="date" id="warranty_exp_date" name="warranty_exp_date" class="form-control mb-3" value="<?php if(isset($appliance['warranty_exp_date'])) {echo htmlspecialchars($appliance['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
+            <label for="warranty_expiration" class="form-label">Warranty Expiration Date<span>*</span></label>
+            <input type="date" id="warranty_expiration" name="warranty_expiration" class="form-control mb-3" value="<?php if(isset($appliance['warranty_exp_date'])) {echo htmlspecialchars($appliance['warranty_exp_date'], ENT_QUOTES, 'UTF-8');} ?>" required>
 
             <label for="cost" class="form-label">Appliance Cost (€)<span>*</span></label>
             <input type="number" id="cost" name="cost" class="form-control mb-3" placeholder="Appliance Cost" value="<?php if(isset($appliance['appliance_cost'])) {echo htmlspecialchars($appliance['appliance_cost'], ENT_QUOTES, 'UTF-8');} ?>" required>
