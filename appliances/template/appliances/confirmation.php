@@ -32,7 +32,8 @@
                 <div class="text-center">
                     <a href="add_appliance.php" class="btn btn-primary mt-3">Register Another Appliance</a>
                 </div>';
-        } else if (isset($_SESSION['appliance_updated']) && $_SESSION['appliance_updated'] === true) {
+        } 
+        else if (isset($_SESSION['appliance_updated']) && $_SESSION['appliance_updated'] === true) {
             // Unset the session variable to prevent the message from showing on page refresh
             unset($_SESSION['appliance_updated']);
             unset($_SESSION['appliance']);        // clear the stored appliance
@@ -44,7 +45,19 @@
                 <div class="text-center">
                     <a href="search_appliance.php" class="btn btn-primary mt-3">View Appliance Inventory</a>
                 </div>';
-        } else {
+        } 
+        else if (isset($_SESSION['appliance_deleted']) && $_SESSION['appliance_deleted'] === true) {
+            // Unset the session variable to prevent the message from showing on page refresh
+            unset($_SESSION['appliance_deleted']);
+            echo '<div class="alert alert-success text-center" role="alert">
+                    <h1>Appliance Successfully Deleted</h1>
+                    <img src="../../static/appliances/success.png" alt="Success" class="img-fluid mt-3" style="max-width: 150px;">
+                </div>
+                <div class="text-center">
+                    <a href="search_appliance.php" class="btn btn-primary mt-3">View Appliance Inventory</a>
+                </div>';
+        }
+        else {
             // If the user tries to access this page directly without registering an appliance, redirect them to the error page
             header("Location: error.php");
             exit();
